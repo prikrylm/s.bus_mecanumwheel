@@ -17,27 +17,27 @@ void ChToH2::_init(int motApin, int motBpin)
     mot1pin = motApin;
     mot2pin = motBpin;
 
-    kDown = (float)(USB_MID - USB_TRE - USB_MIN) / (float)(H2_MAX - H2_TRE);
-    kUp = (float)(USB_MAX - USB_MID - USB_TRE) / (float)(H2_MAX - H2_TRE);
+    kDown = (float)(SBUS_MID - SBUS_TRE - SBUS_MIN) / (float)(H2_MAX - H2_TRE);
+    kUp = (float)(SBUS_MAX - SBUS_MID - SBUS_TRE) / (float)(H2_MAX - H2_TRE);
 
-    setH2(USB_MID); // motor stoji
+    setH2(SBUS_MID); // motor stoji
 }
 
 void ChToH2::setH2(int inValue)
 {
-    if (inValue >= USB_MID - USB_TRE && inValue <= USB_MID + USB_TRE)
+    if (inValue >= SBUS_MID - SBUS_TRE && inValue <= SBUS_MID + SBUS_TRE)
     {
         ma = 0;
         mb = 0;
     }
-    else if (inValue < USB_MID)
+    else if (inValue < SBUS_MID)
     {
         ma = 0;
-        mb = (int)((float)(USB_MID - inValue) / kDown) + H2_TRE;
+        mb = (int)((float)(SBUS_MID - inValue) / kDown) + H2_TRE;
     }
     else
     {
-        ma = (int)((float)(inValue - USB_MID) / kUp) + H2_TRE;
+        ma = (int)((float)(inValue - SBUS_MID) / kUp) + H2_TRE;
         mb = 0;
     }
 

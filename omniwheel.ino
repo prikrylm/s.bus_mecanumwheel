@@ -46,7 +46,7 @@ ChToH2 motor2(M2A, M2B);
 ChToH2 motor3(M3A, M3B);
 ChToH2 motor4(M4A, M4B);
 
-
+unsigned long lastGoodSignal; // time
 
 
 
@@ -56,12 +56,25 @@ sbusProcess()
 {
   sbus.process();
 
-  motor1.setH2(sbus.getChannel(1));
-  motor2.setH2(sbus.getChannel(2));
-  motor3.setH2(sbus.getChannel(3));
-  motor4.setH2(sbus.getChannel(4));
 
   // FAIL
+  if (sbus.getFailsafeStatus())
+  {
+    // stop motors
+    motor1.setH2(SBUS_MID);
+    motor2.setH2(SBUS_MID);
+    motor3.setH2(SBUS_MID);
+    motor4.setH2(SBUS_MID);
+  } else {
+    if (sbus.getGoodFrames() > 0 && lastGoodSignal != sbus.getLastTime()) {
+      // pokud jsou nova data, zapsat, jinak to nema cenu.
+      motor1.setH2(sbus.getChannel(1));
+      motor2.setH2(sbus.getChannel(2));
+      motor3.setH2(sbus.getChannel(3));
+      motor4.setH2(sbus.getChannel(4));
+      lastGoodSignal = sbus.getLastTime();
+    }
+  }
   digitalWrite(LED, !sbus.getFailsafeStatus());
 }
 
@@ -69,6 +82,8 @@ void setup()
 {
  
   pinMode(LED, OUTPUT); // RX failsafe indikator - svítí = failsafe
+  digitalWrite(LED, 0);
+
 
   pinMode(M1A, OUTPUT);
   pinMode(M1B, OUTPUT);
@@ -81,24 +96,23 @@ void setup()
 
   sbus.begin();
 
-  motor1.setH2(USB_MID);
-  motor2.setH2(USB_MID);
-  motor3.setH2(USB_MID);
-  motor4.setH2(USB_MID);
+  motor1.setH2(SBUS_MID);
+  motor2.setH2(SBUS_MID);
+  motor3.setH2(SBUS_MID);
+  motor4.setH2(SBUS_MID);
   
-  digitalWrite(LED, 0);
   #ifdef dbg
       Serial.begin(1200);
   #endif
 
-  delay(1000);
   HardwareTimer *MyTim = new HardwareTimer(sbusTimer);
   // timer
   MyTim->setOverflow(100, HERTZ_FORMAT); 
   MyTim->attachInterrupt(sbusProcess);
   MyTim->resume();
 
-  digitalWrite(LED, 0);
+  digitalWrite(LED, 1);
+
 }
 
 void loop()

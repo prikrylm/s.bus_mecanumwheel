@@ -4,10 +4,10 @@
 
 #include <Arduino.h>
 
-#define USB_MIN 172
-#define USB_MID 996
-#define USB_MAX 1810
-#define USB_TRE 10 // 10 frfniku na kazdou stranu bude nula
+#define SBUS_MIN 172
+#define SBUS_MID 996
+#define SBUS_MAX 1810
+#define SBUS_TRE 10 // 10 frfniku na kazdou stranu bude nula
 
 #define H2_MAX 254
 #define H2_TRE 60
