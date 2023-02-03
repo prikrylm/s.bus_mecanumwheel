@@ -13,6 +13,7 @@ https://github.com/stm32duino/wiki/wiki/API
 
 
 #include <Arduino.h>
+#include <IWatchdog.h>
 #include "sbus.h"
 #include "sbus2h2.h"
 
@@ -58,7 +59,7 @@ sbusProcess()
 
 
   // FAIL
-  if (sbus.getFailsafeStatus())
+  if (sbus.getFailsafeStatus() || millis()-lastGoodSignal > 500)
   {
     // stop motors
     motor1.setH2(SBUS_MID);
@@ -73,6 +74,8 @@ sbusProcess()
       motor3.setH2(sbus.getChannel(3));
       motor4.setH2(sbus.getChannel(4));
       lastGoodSignal = sbus.getLastTime();
+
+      IWatchdog.reload();
     }
   }
   digitalWrite(LED, !sbus.getFailsafeStatus());
@@ -112,7 +115,7 @@ void setup()
   MyTim->resume();
 
   digitalWrite(LED, 1);
-
+  IWatchdog.begin(2000000); // 2s
 }
 
 void loop()
