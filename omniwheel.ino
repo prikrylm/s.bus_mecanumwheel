@@ -55,30 +55,33 @@ unsigned long lastGoodSignal; // time
 void
 sbusProcess()
 {
-  sbus.process();
-
-
-  // FAIL
-  if (sbus.getFailsafeStatus() || millis()-lastGoodSignal > 500)
-  {
-    // stop motors
-    motor1.setH2(SBUS_MID);
-    motor2.setH2(SBUS_MID);
-    motor3.setH2(SBUS_MID);
-    motor4.setH2(SBUS_MID);
-  } else {
-    if (sbus.getGoodFrames() > 0 && lastGoodSignal != sbus.getLastTime()) {
-      // pokud jsou nova data, zapsat, jinak to nema cenu.
-      motor1.setH2(sbus.getChannel(1));
-      motor2.setH2(sbus.getChannel(2));
-      motor3.setH2(sbus.getChannel(3));
-      motor4.setH2(sbus.getChannel(4));
-      lastGoodSignal = sbus.getLastTime();
-
-      IWatchdog.reload();
+  // sbus je 25 znaku
+  if (Serial2.available() > 24) {
+    sbus.process();
+  
+  
+    // FAIL
+    if (sbus.getFailsafeStatus() || millis()-lastGoodSignal > 500)
+    {
+      // stop motors
+      motor1.setH2(SBUS_MID);
+      motor2.setH2(SBUS_MID);
+      motor3.setH2(SBUS_MID);
+      motor4.setH2(SBUS_MID);
+    } else {
+      if (sbus.getGoodFrames() > 0 && lastGoodSignal != sbus.getLastTime()) {
+        // pokud jsou nova data, zapsat, jinak to nema cenu.
+        motor1.setH2(sbus.getChannel(1));
+        motor2.setH2(sbus.getChannel(2));
+        motor3.setH2(sbus.getChannel(3));
+        motor4.setH2(sbus.getChannel(4));
+        lastGoodSignal = sbus.getLastTime();
+  
+        IWatchdog.reload();
+      }
     }
+    digitalWrite(LED, !sbus.getFailsafeStatus());
   }
-  digitalWrite(LED, !sbus.getFailsafeStatus());
 }
 
 void setup()
@@ -110,7 +113,7 @@ void setup()
 
   HardwareTimer *MyTim = new HardwareTimer(sbusTimer);
   // timer
-  MyTim->setOverflow(100, HERTZ_FORMAT); 
+  MyTim->setOverflow(1000, HERTZ_FORMAT); 
   MyTim->attachInterrupt(sbusProcess);
   MyTim->resume();
 
